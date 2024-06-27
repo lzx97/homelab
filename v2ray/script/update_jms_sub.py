@@ -14,7 +14,7 @@ VMESS_SERVER = {
     "alter_id": "0",
     "security": "aes-128-gcm",
     "port": 7571,
-    "server_info": {
+    "server": {
         "usa": {
             "ip": "0.0.0.0",
             "config_path": os.path.join(V2RAY_CONFIG_PATH, "jms_usa.json"),
@@ -85,11 +85,13 @@ process_vmess_server(response.content)
 
 for server_cfg in VMESS_SERVER["server"].values():
     container = get_container(server_cfg["container_name"])
-    if container is None:
+    if container is None or container.status != "running":
         continue
 
-    with open(server_cfg["config_path"], "rw") as f:
+    with open(server_cfg["config_path"], "r") as f:
         curr_cfg = json.load(f)
+    if curr_cfg is None:
+        continue
     curr_ip = curr_cfg["outbounds"][0]["settings"]["vnext"][0]["address"]
     new_ip = server_cfg["ip"]
     if curr_ip != new_ip:
@@ -98,7 +100,6 @@ for server_cfg in VMESS_SERVER["server"].values():
         curr_cfg["outbounds"][0]["settings"]["vnext"][0]["users"][0]["id"] = VMESS_SERVER["user_id"]
         curr_cfg["outbounds"][0]["settings"]["vnext"][0]["users"][0]["alterId"] = VMESS_SERVER["alter_id"]
         curr_cfg["outbounds"][0]["settings"]["vnext"][0]["users"][0]["security"] = VMESS_SERVER["security"]
-        json.dump(curr_cfg, f)
-        print("restart container")
-        #container.restart()
-
+        with open(server_cfg["config_path"], "w") as f:
+            json.dump(curr_cfg, f, indent=2)
+        container.restart()
