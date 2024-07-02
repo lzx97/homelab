@@ -11,7 +11,7 @@ V2RAY_CONFIG_PATH = "/volume1/docker/v2ray/config"
 
 VMESS_SERVER = {
     "user_id": "cba46381-ccef-4817-8ca4-f3bdb879cf75",
-    "alter_id": "0",
+    "alter_id": 0,
     "security": "aes-128-gcm",
     "port": 7571,
     "server": {

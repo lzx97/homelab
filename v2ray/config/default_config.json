@@ -42,6 +42,27 @@
   },
   "inbounds": [
     {
+      "tag": "tproxy",
+      "port": 45123,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "network": "tcp,udp",
+        "followRedirect": true
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "streamSettings": {
+        "sockopt": {
+          "tproxy": "tproxy"
+        }
+      }
+    },
+    {
       "protocol": "http",
       "listen": "0.0.0.0",
       "port": 2080,
@@ -59,12 +80,12 @@
   "outbounds": [
     {
       "protocol": "vmess",
-      "tag": "proxy_vmess_usa",
+      "tag": "proxy_vmess",
       "settings": {
         "vnext": [
           {
             "address": "XXX",
-            "port": 1111,
+            "port": -1,
             "users": [
               {
                 "id": "XXX",
@@ -78,17 +99,32 @@
       "mux": {
         "enabled": false,
         "concurrency": -1
+      },
+      "streamSettings": {
+        "sockopt": {
+          "mark": 2
+        }
       }
     },
     {
       "protocol": "dns",
-      "tag": "dns-out"
+      "tag": "dns-out",
+      "streamSettings": {
+        "sockopt": {
+          "mark": 2
+        }
+      }
     },
     {
       "protocol": "freedom",
       "tag": "direct",
       "settings": {
         "domainStrategy": "UseIPv4"
+      },
+      "streamSettings": {
+        "sockopt": {
+          "mark": 2
+        }
       }
     },
     {
@@ -126,12 +162,12 @@
         "type": "field",
         "outboundTag": "block",
         "domain": [
-          "geosite:category-ads"
+          "geosite:category-ads-all"
         ]
       },
       {
         "type": "field",
-        "outboundTag": "proxy_vmess_usa",
+        "outboundTag": "proxy_vmess",
         "domain": [
           "full:www.icloud.com",
           "domain:icloud-content.com",
@@ -149,7 +185,7 @@
       },
       {
         "type": "field",
-        "outboundTag": "proxy_vmess_usa",
+        "outboundTag": "proxy_vmess",
         "domain": [
           "geosite:geolocation-!cn"
         ]
@@ -172,7 +208,7 @@
       },
       {
         "type": "field",
-        "outboundTag": "proxy_vmess_usa",
+        "outboundTag": "proxy_vmess",
         "network": "tcp,udp"
       }
     ]
